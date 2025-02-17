@@ -2,16 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Ensures mobile devices display content properly without zooming out. -->
+  <!-- Ensures mobile devices display content properly without zooming out -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2075 Text-Based RPG</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Top Bar with Menu Button -->
+  <header id="top-bar">
+    <h1>Text-Based RPG - Y 2075</h1>
+    <button id="menu-toggle" class="menu-btn">☰ Menu</button>
+  </header>
+
+  <!-- Hidden side menu / overlay menu -->
+  <div id="menu-panel" >
+    <button id="close-menu" class="menu-btn">✕ Close</button>
+    <ul>
+      <li><button id="save-btn" class="action-btn">Save Game</button></li>
+      <li><button id="load-btn" class="action-btn">Load Game</button></li>
+      <li>
+        <button id="options-toggle" class="action-btn">Toggle Options</button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Options panel (also toggleable) -->
+  <div id="options-panel" >
+    <p>Options</p>
+    <div class="option-item">
+      <label for="toggle-font-size">Large Font:</label>
+      <input type="checkbox" id="toggle-font-size" />
+    </div>
+  </div>
+
+  <!-- Main Game Container -->
   <div id="game-container">
     <div id="story"></div>
     <div id="choices"></div>
   </div>
+
   <script src="main.js"></script>
 </body>
 </html>
