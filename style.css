@@ -1,0 +1,66 @@
+/* Base reset / mobile-friendly defaults */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Courier New', Courier, monospace;
+  color: white;
+  background-color: black;
+  /* Ensure text is large enough for mobile */
+  font-size: 16px;
+}
+
+#game-container {
+  /* Mobile-first approach: full width with a small margin */
+  width: 98%;
+  max-width: 600px; /* On larger screens, don't exceed 600px */
+  margin: 0 auto;
+  margin-top: 3px;
+  padding: 20px;
+  /* Visual style for container */
+  background-color: #111;
+  border: 2px solid yellow;
+  box-sizing: border-box;
+}
+
+#story p {
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+/* Choices container uses a flexible layout with wrapping. */
+#choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* Button styling */
+.choice-button {
+  background-color: #222;
+  color: yellow;
+  border: 1px solid yellow;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+  flex: 1 1 auto; /* Each button can expand/shrink as needed */
+}
+
+.choice-button:hover {
+  background-color: yellow;
+  color: black;
+}
+
+/* Optional: small improvements for narrower screens */
+@media (max-width: 480px) {
+  #choices {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .choice-button {
+    font-size: 18px; /* Slightly larger text for smaller screens */
+  }
+}
