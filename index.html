@@ -15,24 +15,30 @@
   </header>
 
   <!-- Hidden side menu / overlay menu -->
-  <div id="menu-panel" >
+  <div id="menu-panel">
     <button id="close-menu" class="menu-btn">✕ Close</button>
     <ul>
       <li><button id="save-btn" class="action-btn">Save Game</button></li>
       <li><button id="load-btn" class="action-btn">Load Game</button></li>
-      <li>
-        <button id="options-toggle" class="action-btn">Toggle Options</button>
-      </li>
+      <li><button id="options-toggle" class="action-btn">Toggle Options</button></li>
+      <li><button id="inventory-btn" class="action-btn">View Inventory</button></li>
     </ul>
   </div>
 
-  <!-- Options panel (also toggleable) -->
-  <div id="options-panel" >
+  <!-- Options panel (toggleable) -->
+  <div id="options-panel">
     <p>Options</p>
     <div class="option-item">
       <label for="toggle-font-size">Large Font:</label>
       <input type="checkbox" id="toggle-font-size" />
     </div>
+  </div>
+
+  <!-- Inventory panel (toggleable) -->
+  <div id="inventory-panel">
+    <h2>Your Inventory</h2>
+    <div id="inventory-list"></div>
+    <button id="close-inventory" class="action-btn">Close</button>
   </div>
 
   <!-- Main Game Container -->
