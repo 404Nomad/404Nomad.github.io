@@ -31,8 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // === CYBERPUNK ITEMS LIST ===
-  // An example set of items you could find in a futuristic 2075 setting.
-  // You can expand this list as needed.
   const items = [
     {
       id: "energy_bar",
@@ -66,93 +64,146 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   ];
 
-  // Helper function to retrieve an item object by ID
+  // Helper: Retrieve item object by id
   function getItemById(itemId) {
     return items.find((itm) => itm.id === itemId);
   }
 
-  // === LOCATIONS & COMMANDS ===
-  // Some locations will have "items" that can be discovered via an "Explore" action.
-  // Once found, a "Pick Up" button allows the user to add them to their inventory.
+  // === LOCATIONS & STORY ===
+  // In this story the player must explore various locations and collect items.
+  // When all required items are obtained, the player can enter the Secret Bunker.
   const locations = {
     start: {
       description:
-        "You wake up in a dark, neon-lit alley in the futuristic 2075. The rain pours down, and the distant hum of cybernetic life fills the air.",
+        "You wake up in a dark, neon-lit alley in the futuristic 2075. The rain pours down and the hum of cybernetic life fills the air. Paths lead in multiple directions.",
       commands: {
         "Go North": "alley_north",
         "Go East": "alley_east",
+        "Go to Back Alley": "back_alley"
       },
-      items: [], // no items in the start location
+      items: []
     },
     alley_north: {
       description:
-        "You move north into a more dangerous district. The environment is grim, with towering holograms flickering overhead.",
+        "You move north into a grim district, where towering holograms flicker above crumbling facades. Shadows hint at hidden dangers.",
       commands: {
         "Go South": "start",
-        Explore: "explore_alley_north",
+        "Explore": "explore_alley_north"
       },
-      items: [], // no direct items, but we have a separate 'explore' route
+      items: []
     },
-    // A pseudo-location for exploring alley_north
     explore_alley_north: {
       description:
-        "You search the dark corners and find a battered crate. Inside, there's a Rusty Pistol and an Ammo Clip.",
+        "Searching the dark corners, you find a battered crate. Inside, you spot a Rusty Pistol and an Ammo Clip.",
       commands: {
         "Pick up Rusty Pistol": "pickup_rusty_pistol",
         "Pick up Ammo Clip": "pickup_ammo_clip",
-        "Go Back": "alley_north",
+        "Go Back": "alley_north"
       },
-      items: ["rusty_pistol", "ammo_clip"],
+      items: ["rusty_pistol", "ammo_clip"]
     },
-    // When picking up an item, we can move to a small state for feedback
     pickup_rusty_pistol: {
-      description: "You pick up the Rusty Pistol. It might come in handy.",
+      description:
+        "You pick up the Rusty Pistol. Though old, it might prove useful.",
       commands: {
-        "Go Back": "alley_north",
+        "Go Back": "alley_north"
       },
-      items: [],
+      items: []
     },
     pickup_ammo_clip: {
-      description: "You pick up the Ammo Clip. Always good to have spare ammo.",
+      description:
+        "You pick up the Ammo Clip. Extra rounds could come in handy.",
       commands: {
-        "Go Back": "alley_north",
+        "Go Back": "alley_north"
       },
-      items: [],
+      items: []
     },
-
     alley_east: {
       description:
-        "Heading east, you find a cyber café bustling with data hackers and digital outlaws.",
+        "Heading east, you arrive at a bustling cyber café. Neon signs, data hackers, and digital outlaws fill the scene. A side street leads further downtown.",
       commands: {
         "Go West": "start",
-        Explore: "explore_alley_east",
+        "Explore": "explore_alley_east",
+        "Go to Downtown": "downtown"
       },
-      items: [],
+      items: []
     },
     explore_alley_east: {
       description:
-        "You spot a trash bin behind the café. Inside, there's an Energy Bar and a half-empty Synth Drink.",
+        "You rummage through the trash behind the café and discover an Energy Bar and a half-empty Synth Drink.",
       commands: {
         "Pick up Energy Bar": "pickup_energy_bar",
         "Pick up Synth Drink": "pickup_synth_drink",
-        "Go Back": "alley_east",
+        "Go Back": "alley_east"
       },
-      items: ["energy_bar", "synth_drink"],
+      items: ["energy_bar", "synth_drink"]
     },
     pickup_energy_bar: {
-      description: "You pick up the Energy Bar. It's not the tastiest, but it'll do.",
+      description:
+        "You pick up the Energy Bar. It may not be gourmet, but it'll keep you going.",
       commands: {
-        "Go Back": "alley_east",
+        "Go Back": "alley_east"
       },
-      items: [],
+      items: []
     },
     pickup_synth_drink: {
-      description: "You pick up the Synth Drink. It's a neon pink color.",
+      description:
+        "You pick up the Synth Drink. Its neon hue is oddly inviting.",
       commands: {
-        "Go Back": "alley_east",
+        "Go Back": "alley_east"
       },
-      items: [],
+      items: []
     },
+    back_alley: {
+      description:
+        "In a narrow back alley, glistening in a puddle, you notice a discarded Hacking Device.",
+      commands: {
+        "Pick up Hacking Device": "pickup_hacking_device",
+        "Go Back": "start"
+      },
+      items: ["hacking_device"]
+    },
+    pickup_hacking_device: {
+      description:
+        "You pick up the Hacking Device. With this, you could bypass even the toughest security.",
+      commands: {
+        "Go Back": "start"
+      },
+      items: []
+    },
+    downtown: {
+      description:
+        "You arrive downtown where neon lights pulse and the air is thick with mystery. In the distance, an imposing door looms — the entrance to a Secret Bunker.",
+      commands: {
+        "Enter the Secret Bunker": "enter_secret_bunker",
+        "Go Back": "start"
+      },
+      items: []
+    },
+    enter_secret_bunker: {
+      description:
+        "You approach the door. As you reach for the handle, a security system scans you.",
+      // The actual transition will be intercepted to check for required items.
+      commands: {
+        "Attempt Entry": "final_entry",
+        "Go Back": "downtown"
+      },
+      items: []
+    },
+    final_entry: {
+      description:
+        "Using your collected items to bypass the security systems, the door opens. You step inside the secret bunker. Congratulations! Your journey in the neon-drenched world of 2075 has reached its end.",
+      commands: {
+        "End Game": "end_game"
+      },
+      items: []
+    },
+    end_game: {
+      description:
+        "THE END - Your adventure in 2075 comes to a close. Thank you for playing!",
+      commands: {},
+      items: []
+    }
   };
 
   // === RENDER FUNCTIONS ===
@@ -176,16 +227,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // This function intercepts certain commands so we can add items to the inventory
+  // Handles location changes and intercepts special commands.
   function handleLocationChange(destination, commandText) {
-    // If the command was "Pick up ..." we can parse the item from the current location
+    // If the command is a "Pick up ..." action, add the item.
     if (commandText.startsWith("Pick up")) {
-      // E.g. "Pick up Energy Bar" => item name is everything after "Pick up "
       const itemName = commandText.replace("Pick up ", "").trim();
-      // Match it to our items[] data
-      const itemObj = items.find((i) => i.name.toLowerCase() === itemName.toLowerCase());
+      const itemObj = items.find(
+        (i) => i.name.toLowerCase() === itemName.toLowerCase()
+      );
       if (itemObj) {
         addItemToInventory(itemObj.id);
+      }
+    }
+    // Special check for entering the secret bunker.
+    if (commandText === "Attempt Entry") {
+      const requiredItems = [
+        "rusty_pistol",
+        "ammo_clip",
+        "energy_bar",
+        "synth_drink",
+        "hacking_device"
+      ];
+      const hasAll = requiredItems.every((id) =>
+        gameState.inventory.includes(id)
+      );
+      if (!hasAll) {
+        alert("You don't have all the necessary items to enter the bunker. Collect them all first.");
+        return; // Do not change location.
       }
     }
     // Update location and re-render
@@ -200,7 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === INVENTORY SYSTEM ===
-  // Adds an item to the player's inventory if not already there
   function addItemToInventory(itemId) {
     if (!gameState.inventory.includes(itemId)) {
       gameState.inventory.push(itemId);
@@ -209,9 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showInventory() {
-    // Clear the current list
     inventoryList.innerHTML = "";
-
     if (gameState.inventory.length === 0) {
       inventoryList.innerHTML = "<p>Your inventory is empty.</p>";
     } else {
@@ -233,7 +298,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // === OPTIONS & UI MODES ===
   function applyOptions() {
-    // Toggle large font if chosen
     if (gameState.options.largeFont) {
       document.body.style.fontSize = "20px";
     } else {
@@ -269,8 +333,6 @@ document.addEventListener("DOMContentLoaded", () => {
   menuToggleBtn.addEventListener("click", () => {
     menuPanel.classList.toggle("show");
   });
-
-  // Close menu button
   closeMenuBtn.addEventListener("click", () => {
     menuPanel.classList.remove("show");
   });
@@ -279,8 +341,6 @@ document.addEventListener("DOMContentLoaded", () => {
   optionsToggleBtn.addEventListener("click", () => {
     optionsPanel.classList.toggle("show");
   });
-
-  // Font size option
   toggleFontSizeCheckbox.addEventListener("change", (e) => {
     gameState.options.largeFont = e.target.checked;
     applyOptions();

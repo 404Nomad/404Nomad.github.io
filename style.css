@@ -148,7 +148,7 @@ html, body {
   margin-bottom: 10px;
 }
 
-/* Inventory panel (center overlay or fixed) */
+/* Inventory panel (center overlay) */
 #inventory-panel {
   position: fixed;
   top: 10%;
@@ -175,11 +175,6 @@ html, body {
 /* Show/hide classes */
 .hidden {
   display: none !important;
-}
-
-/* Slide-in for menu-panel */
-#menu-panel.show {
-  transform: translateX(0);
 }
 
 /* Slide-up for options-panel */
