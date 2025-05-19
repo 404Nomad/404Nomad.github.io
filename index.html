@@ -35,13 +35,17 @@
         margin: 0;
         font-size: 1.5rem;
       }
-      form {
+      form, #settings {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         margin: 1rem 0;
+        background: var(--input-bg);
+        padding: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
-      input, textarea, button {
+      form input, form textarea, form button, #settings button, .counter button {
         padding: 0.5rem;
         border: 1px solid var(--input-border);
         border-radius: 4px;
@@ -49,13 +53,13 @@
         background: var(--input-bg);
         color: var(--text);
       }
-      button {
+      form button, #settings button, .counter button {
         background: var(--secondary);
         color: #fff;
         border: none;
         cursor: pointer;
       }
-      button:hover {
+      form button:hover, #settings button:hover, .counter button:hover {
         opacity: 0.9;
       }
       .counter {
@@ -71,14 +75,15 @@
         font-weight: bold;
         color: var(--primary);
       }
-      .dark-mode {
+      .dark-mode-toggle {
         position: fixed;
         top: 1rem;
         right: 1rem;
         background: none;
         border: none;
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         cursor: pointer;
+        color: var(--text);
       }
       @media(min-width: 600px) {
         h1 { font-size: 2rem; }
@@ -91,32 +96,45 @@
       }
       body.dark header {
         background: #444;
-      }
-      body.dark input,
-      body.dark textarea {
-        background: #333;
-        color: #eee;
-        border: 1px solid #555;
-      }
-      body.dark button {
-        background: #27a358;
         color: #fff;
       }
+      body.dark form,
+      body.dark #settings,
       body.dark .counter {
         background: #2b2b2b;
         box-shadow: 0 2px 4px rgba(0,0,0,0.5);
         color: #eee;
       }
+      body.dark form input,
+      body.dark form textarea,
+      body.dark form button,
+      body.dark #settings button,
+      body.dark .counter button {
+        background: #333;
+        color: #eee;
+        border: 1px solid #555;
+      }
+      body.dark form button,
+      body.dark #settings button,
+      body.dark .counter button {
+        background: #27a358;
+        color: #fff;
+      }
+      body.dark form button:hover,
+      body.dark #settings button:hover,
+      body.dark .counter button:hover {
+        opacity: 0.85;
+      }
       body.dark .timer {
         color: #58a6ff;
       }
-      body.dark .dark-mode {
+      body.dark .dark-mode-toggle {
         color: #ffd700;
       }
     </style>
 </head>
 <body>
-    <button class="dark-mode" aria-label="Basculer mode sombre">🌙</button>
+    <button class="dark-mode-toggle" aria-label="Basculer mode sombre">🌙</button>
     <header>
         <h1>Multi-Countdown</h1>
         <p>Rappels pour vos examens à venir</p>
@@ -128,18 +146,73 @@
             <input type="datetime-local" id="target-date" required>
             <button type="submit">Ajouter un compte à rebours</button>
         </form>
+        <aside id="settings">
+            <h2>Réglages</h2>
+            <button id="save-btn">Sauvegarder</button>
+            <button id="export-btn">Exporter</button>
+            <button id="import-btn">Importer</button>
+            <input type="file" id="file-input" accept="application/json" style="display:none">
+        </aside>
         <div id="counters"></div>
     </main>
     <script>
-      // Gestionnaire des compte-à-rebours
+      // État et stockage
       const form = document.getElementById('countdown-form');
       const countersDiv = document.getElementById('counters');
+      const saveBtn = document.getElementById('save-btn');
+      const exportBtn = document.getElementById('export-btn');
+      const importBtn = document.getElementById('import-btn');
+      const fileInput = document.getElementById('file-input');
       let counters = JSON.parse(localStorage.getItem('counters')) || [];
 
+      // Sauvegarde dans localStorage
       function save() {
         localStorage.setItem('counters', JSON.stringify(counters));
       }
+      saveBtn.onclick = () => { save(); alert('Sauvegarde locale effectuée !'); };
 
+      // Export JSON et téléchargement
+      exportBtn.onclick = () => {
+        const dataStr = JSON.stringify(counters, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'countdowns_backup.json';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      };
+
+      // Import JSON depuis fichier
+      importBtn.onclick = () => fileInput.click();
+      fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          try {
+            const imported = JSON.parse(ev.target.result);
+            if (!Array.isArray(imported)) throw new Error();
+            let added = 0;
+            imported.forEach(i => {
+              const exists = counters.some(c => 
+                c.title === i.title && c.target === i.target && c.description === i.description
+              );
+              if (!exists) { counters.push(i); added++; }
+            });
+            if (added) { save(); render(); }
+            alert(`${added} nouveau(x) compte(s) importé(s).`);
+          } catch {
+            alert('Fichier invalide ou format incorrect.');
+          }
+        };
+        reader.readAsText(file);
+        fileInput.value = '';
+      };
+
+      // Rendu des compte-à-rebours
       function render() {
         countersDiv.innerHTML = '';
         counters.forEach((c, i) => {
@@ -157,12 +230,6 @@
         });
       }
 
-      function addCounter(c) {
-        counters.push(c);
-        save();
-        render();
-      }
-
       form.onsubmit = e => {
         e.preventDefault();
         const c = {
@@ -171,7 +238,9 @@
           target: form['target-date'].value,
           created: new Date().toISOString()
         };
-        addCounter(c);
+        counters.push(c);
+        save();
+        render();
         form.reset();
       };
 
@@ -201,7 +270,7 @@
         const interval = setInterval(update, 1000);
       }
 
-      // Effet confetti simple
+      // Confetti
       function confetti() {
         const count = 200;
         for (let i = 0; i < count; i++) {
@@ -222,12 +291,12 @@
         }
       }
 
-      // Bascule mode sombre
-      document.querySelector('.dark-mode').onclick = () => {
+      // Mode sombre toggle
+      document.querySelector('.dark-mode-toggle').onclick = () => {
         document.body.classList.toggle('dark');
       };
 
-      // Initial render
+      // Initialisation
       render();
     </script>
 </body>
