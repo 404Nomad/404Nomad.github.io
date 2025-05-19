@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Countdown</title>
+    <style>
+      /* Charte graphique */
+      :root {
+        --primary: #3498db;
+        --secondary: #2ecc71;
+        --background: #f4f4f4;
+        --text: #333;
+        --input-bg: #fff;
+        --input-border: #ccc;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: var(--background);
+        color: var(--text);
+      }
+      header, main {
+        padding: 1rem;
+        max-width: 600px;
+        margin: auto;
+      }
+      header {
+        background: var(--primary);
+        color: #fff;
+        text-align: center;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      }
+      input, textarea, button {
+        padding: 0.5rem;
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        font-size: 1rem;
+        background: var(--input-bg);
+        color: var(--text);
+      }
+      button {
+        background: var(--secondary);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      .counter {
+        background: #fff;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+      .timer {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--primary);
+      }
+      .dark-mode {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+      }
+      @media(min-width: 600px) {
+        h1 { font-size: 2rem; }
+        .timer { font-size: 1.5rem; }
+      }
+      /* Mode sombre */
+      body.dark {
+        background: #222;
+        color: #eee;
+      }
+      body.dark header {
+        background: #444;
+      }
+      body.dark input,
+      body.dark textarea {
+        background: #333;
+        color: #eee;
+        border: 1px solid #555;
+      }
+      body.dark button {
+        background: #27a358;
+        color: #fff;
+      }
+      body.dark .counter {
+        background: #2b2b2b;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        color: #eee;
+      }
+      body.dark .timer {
+        color: #58a6ff;
+      }
+      body.dark .dark-mode {
+        color: #ffd700;
+      }
+    </style>
+</head>
+<body>
+    <button class="dark-mode" aria-label="Basculer mode sombre">🌙</button>
+    <header>
+        <h1>Multi-Countdown</h1>
+        <p>Rappels pour vos examens à venir</p>
+    </header>
+    <main>
+        <form id="countdown-form">
+            <input type="text" id="title" placeholder="Titre" required>
+            <textarea id="description" rows="2" placeholder="Description"></textarea>
+            <input type="datetime-local" id="target-date" required>
+            <button type="submit">Ajouter un compte à rebours</button>
+        </form>
+        <div id="counters"></div>
+    </main>
+    <script>
+      // Gestionnaire des compte-à-rebours
+      const form = document.getElementById('countdown-form');
+      const countersDiv = document.getElementById('counters');
+      let counters = JSON.parse(localStorage.getItem('counters')) || [];
+
+      function save() {
+        localStorage.setItem('counters', JSON.stringify(counters));
+      }
+
+      function render() {
+        countersDiv.innerHTML = '';
+        counters.forEach((c, i) => {
+          const el = document.createElement('div');
+          el.className = 'counter';
+          el.innerHTML = `
+           <h2>${c.title}</h2>
+           <p>${c.description}</p>
+           <div class="timer" id="timer-${i}">Calcul en cours...</div>
+           <small>Ajouté le ${new Date(c.created).toLocaleString()}</small>
+           <button onclick="remove(${i})">Supprimer</button>
+          `;
+          countersDiv.appendChild(el);
+          startTimer(c, i);
+        });
+      }
+
+      function addCounter(c) {
+        counters.push(c);
+        save();
+        render();
+      }
+
+      form.onsubmit = e => {
+        e.preventDefault();
+        const c = {
+          title: form.title.value,
+          description: form.description.value,
+          target: form['target-date'].value,
+          created: new Date().toISOString()
+        };
+        addCounter(c);
+        form.reset();
+      };
+
+      function remove(i) {
+        counters.splice(i, 1);
+        save();
+        render();
+      }
+
+      function startTimer(c, i) {
+        const el = document.getElementById(`timer-${i}`);
+        function update() {
+          const diff = new Date(c.target) - new Date();
+          if (diff <= 0) {
+            el.textContent = 'Temps écoulé 🎉';
+            clearInterval(interval);
+            confetti();
+            return;
+          }
+          const d = Math.floor(diff / 86400000);
+          const h = Math.floor((diff % 86400000) / 3600000);
+          const m = Math.floor((diff % 3600000) / 60000);
+          const s = Math.floor((diff % 60000) / 1000);
+          el.textContent = `${d}j ${h}h ${m}m ${s}s`;
+        }
+        update();
+        const interval = setInterval(update, 1000);
+      }
+
+      // Effet confetti simple
+      function confetti() {
+        const count = 200;
+        for (let i = 0; i < count; i++) {
+          const conf = document.createElement('div');
+          Object.assign(conf.style, {
+            position: 'fixed',
+            background: ['#e74c3c','#f1c40f','#2ecc71','#3498db'][Math.floor(Math.random()*4)],
+            width: '8px',
+            height: '8px',
+            top: '50%',
+            left: '50%',
+            opacity: '0.8',
+            borderRadius: '50%',
+            transform: `translate(${(Math.random()-0.5)*window.innerWidth}px, ${(Math.random()-0.5)*window.innerHeight}px)`
+          });
+          document.body.appendChild(conf);
+          setTimeout(() => conf.remove(), 3000);
+        }
+      }
+
+      // Bascule mode sombre
+      document.querySelector('.dark-mode').onclick = () => {
+        document.body.classList.toggle('dark');
+      };
+
+      // Initial render
+      render();
+    </script>
+</body>
+</html>
